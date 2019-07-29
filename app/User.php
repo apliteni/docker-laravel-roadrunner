@@ -3,9 +3,13 @@
 namespace App;
 
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+/**
+ * @method static Builder select($columns = ['*'])
+ * @method static self    create($attributes = [])
+ */
 class User extends Authenticatable
 {
     use Notifiable;
