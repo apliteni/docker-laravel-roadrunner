@@ -1,0 +1,106 @@
+# GitLab CI help:      <https://docs.gitlab.com/ee/ci/yaml/>
+# GitLab environments: <https://docs.gitlab.com/ee/ci/variables/>
+#
+# IMPORTANT NOTICES:
+# 1. You should make an protected tags rules in repository. Rules list:
+# - Tag "*"; Allowed to create "No one"
+# - Tag "v*.*.*"; Allowed to create "Maintainers"
+# 2. You should make "Push Rule" - "Branch name" regex `[a-z0-9\/\-]+`
+# 3. You should protect `master` branch - push for "Maintainers" only
+image: docker:stable
+
+services:
+  - docker:dind
+
+variables:
+  APP_IMAGE: $CI_REGISTRY_IMAGE/app
+  REDIS_VERSION: '5.0.5'
+  POSTGRES_VERSION: '11.4'
+
+stages:
+  - build
+  - test
+
+before_script:
+  - &script-docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY &> /dev/null
+
+build app image:
+  stage: build
+  only:
+    - branches
+  script:
+    - docker pull "$APP_IMAGE:$CI_COMMIT_REF_SLUG" &> /dev/null || docker pull "$APP_IMAGE:master" &> /dev/null || true
+    - docker build --cache-from "$APP_IMAGE:$CI_COMMIT_REF_SLUG" --cache-from "$APP_IMAGE:master"
+      -f ./docker/app/Dockerfile
+      --tag "$APP_IMAGE:$CI_COMMIT_REF_SLUG" .
+    - docker push "$APP_IMAGE:$CI_COMMIT_REF_SLUG"
+
+build latest app image:
+  stage: build
+  only:
+    - /^v\d+\.\d+\.\d+$/
+  except:
+    - branches
+  script:
+    - docker pull "$APP_IMAGE:latest" &> /dev/null || true
+    - docker build --cache-from "$APP_IMAGE:latest" -f ./docker/app/Dockerfile
+      --tag "$APP_IMAGE:$CI_COMMIT_REF_SLUG"
+      --tag "$APP_IMAGE:latest" .
+    - docker push "$APP_IMAGE:$CI_COMMIT_REF_SLUG"
+    - docker push "$APP_IMAGE:latest"
+
+analyse app:
+  stage: test
+  only:
+    - branches
+    - tags
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - docker pull $APP_IMAGE:$CI_COMMIT_REF_SLUG &> /dev/null
+    - docker run --rm "$APP_IMAGE:$CI_COMMIT_REF_SLUG" sh -c 'composer install --prefer-dist --ansi && composer analyse'
+
+app unit testing: &test-with-services
+  stage: test
+  only:
+    - branches
+    - tags
+  variables:
+    GIT_STRATEGY: none
+    APP_CONTAINER_NAME: app
+    APP_RUN_ARGS: "--link=redis:redis -e REDIS_HOST=redis -e REDIS_PORT=6379
+                   --link=postgres:postgres -e DB_HOST=postgres -e DB_PORT=5432 -e DB_DATABASE=forge
+                   -e DB_USERNAME=forge -e DB_PASSWORD=forge
+                   -e APP_DEBUG=true -e STARTUP_WAIT_FOR_SERVICES=true"
+    DOCKER_NETWORK_NAME: app-network
+  before_script: # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#how-to-debug-a-job-locally
+    - *script-docker-login
+    - docker network create $DOCKER_NETWORK_NAME &> /dev/null
+    - docker run --rm -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine &> /dev/null
+    - docker run --rm -d --name postgres --network ${DOCKER_NETWORK_NAME}
+      -e POSTGRES_DB=forge -e POSTGRES_USER=forge -e POSTGRES_PASSWORD=forge
+      postgres:${POSTGRES_VERSION}-alpine &> /dev/null
+    - docker pull $APP_IMAGE:$CI_COMMIT_REF_SLUG &> /dev/null
+    - mkdir ./logs
+  script:
+    - docker run --name ${APP_CONTAINER_NAME} ${APP_RUN_ARGS} --network ${DOCKER_NETWORK_NAME}
+      -v "$(pwd)/logs:/app/storage/logs:rw" $APP_IMAGE:$CI_COMMIT_REF_SLUG sh -c
+      'composer install --no-suggest --prefer-dist --ansi && composer phpunit'
+  artifacts:
+    when: on_failure
+    expire_in: 1 week
+    paths:
+      - logs/
+
+test app running:
+  <<: *test-with-services
+  script: # Container host name @see <https://stackoverflow.com/a/48288560/2252921>
+    - docker run -d --name ${APP_CONTAINER_NAME} ${APP_RUN_ARGS} --network ${DOCKER_NETWORK_NAME}
+      -v "$(pwd)/logs:/app/storage/logs:rw"
+      -p 8080:80 -p 8081:443
+      $APP_IMAGE:$CI_COMMIT_REF_SLUG
+    - apk add --no-cache curl &> /dev/null && sleep 15
+    - curl -sS --fail "http://docker:8080/status"
+    - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
+  after_script:
+    - docker logs ${APP_CONTAINER_NAME} || true
