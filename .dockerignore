@@ -1,4 +1,3 @@
-Dockerfile
 .dockerignore
 Makefile
 docker*.yml
@@ -18,5 +17,3 @@ storage/*.cache
 .idea
 .git
 *.local.yml
-phpunit*.xml
-phpstan.neon*
