@@ -10,7 +10,7 @@
 image: docker:stable
 
 services:
-  - docker:dind
+  - docker:18-dind
 
 variables:
   APP_IMAGE: $CI_REGISTRY_IMAGE/app
