@@ -7,7 +7,7 @@
 # - Tag "v*.*.*"; Allowed to create "Maintainers"
 # 2. You should make "Push Rule" - "Branch name" regex `[a-z0-9\/\-]+`
 # 3. You should protect `master` branch - push for "Maintainers" only
-image: docker:18-dind
+image: docker:stable
 
 services:
   - docker:dind
@@ -23,7 +23,7 @@ stages:
   - deploy
 
 before_script:
-  - &script-docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
+  - &script-docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY > /dev/null
 
 build app image:
   stage: build
