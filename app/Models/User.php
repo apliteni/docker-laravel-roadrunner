@@ -1,7 +1,8 @@
 <?php
 
-namespace App;
+namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -9,6 +10,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 /**
  * @method static Builder select($columns = ['*'])
  * @method static self    create($attributes = [])
+ * @method static Builder inRandomOrder($seed = '')
+ *
+ * @property int         $id
+ * @property string      $name
+ * @property string      $email
+ * @property Carbon|null $email_verified_at
+ * @property string      $password
+ * @property string|null $remember_token
+ * @property Carbon|null $created_at
+ * @property Carbon|null $updated_at
  */
 class User extends Authenticatable
 {

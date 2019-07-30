@@ -4,7 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][keepachangelog] and this project adheres to [Semantic Versioning][semver].
 
-## UNRELEASED
+## v0.0.2
+
+### Changed
+
+- User model moved from `App` namespace to `App\Models`
+
+### Added
+
+- `Makefile` with all required targets
+- Git hooks (must be installed using `make git-hooks` command)
+- HTTP endpoint `/status` (health check)
+- Feature tests
+
+## v0.0.1
 
 ### Changed
 
