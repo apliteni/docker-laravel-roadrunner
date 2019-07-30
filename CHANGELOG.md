@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog][keepachangelog] and this project adher
 ### Added
 
 - `.gitlab-ci.yml` file
+- `ENVIRONMENT.md`
 
 ## v0.0.2
 
