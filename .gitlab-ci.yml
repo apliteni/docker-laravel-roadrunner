@@ -9,8 +9,8 @@
 # 3. You should protect `master` branch - push for "Maintainers" only
 image: docker:stable
 
-# services:
-#   - docker:dind
+services:
+  - docker:dind
 
 variables:
   APP_IMAGE: $CI_REGISTRY_IMAGE/app
@@ -26,19 +26,21 @@ stages:
   - test
   - deploy
 
-before_script:
-  - &script-docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY > /dev/null
+registry login: &registry_login
+  before_script:
+    - &script-docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY > /dev/null
 
 .cache-common:
   cache:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - vendor/
-
+.
 build app image:
   stage: build
   only:
     - branches
+  <<: *registry_login
   script:
     - docker pull "$APP_IMAGE:$CI_COMMIT_REF_SLUG" || docker pull "$APP_IMAGE:master" || true
     - docker build --cache-from "$APP_IMAGE:$CI_COMMIT_REF_SLUG" --cache-from "$APP_IMAGE:master"
@@ -52,6 +54,7 @@ build latest app image:
     - /^v\d+\.\d+\.\d+$/
   except:
     - branches
+  <<: *registry_login
   script:
     - docker pull "$APP_IMAGE:latest" || true
     - docker build --cache-from "$APP_IMAGE:latest" -f ./docker/app/Dockerfile
