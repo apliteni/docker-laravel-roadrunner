@@ -81,6 +81,9 @@ analyse app:
   variables:
     GIT_STRATEGY: none
   script:
+    - ls -alt
+    - ls -alt vendor
+    - cat composer.json
     - composer analyse
 
 app unit testing: &test-with-services
@@ -123,7 +126,7 @@ app unit testing: &test-with-services
     # - mkdir ./logs
   script:
     - echo $DB_DATABASE && echo $DB_USERNAME
-    - composer install --no-suggest --prefer-dist --ansi && composer phpunit
+    - composer phpunit
   artifacts:
     when: on_failure
     expire_in: 1 week
