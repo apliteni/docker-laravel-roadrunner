@@ -62,12 +62,10 @@ build latest app image:
 analyse app:
   stage: test
   image: $APP_IMAGE:$CI_COMMIT_REF_SLUG
-  extends: cache-common
+  extends: .cache-common
   only:
     - branches
     - tags
-  cache:
-    policy: pull
   variables:
     GIT_STRATEGY: none
   script:
@@ -76,6 +74,9 @@ analyse app:
 app unit testing: &test-with-services
   stage: test
   image: $APP_IMAGE:$CI_COMMIT_REF_SLUG
+  extends: .cache-common
+  cache:
+    policy: pull
   only:
     - branches
     - tags
@@ -99,7 +100,7 @@ app unit testing: &test-with-services
                    -e DB_USERNAME=forge -e DB_PASSWORD=forge
                    -e APP_DEBUG=true -e STARTUP_WAIT_FOR_SERVICES=true"
     DOCKER_NETWORK_NAME: app-network
-  before_script: # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#how-to-debug-a-job-locally
+  # before_script: # https://docs.gitlab.com/ee/ci/docker/using_docker_images.html#how-to-debug-a-job-locally
     # - *script-docker-login
     # - docker network create $DOCKER_NETWORK_NAME
     # - docker run --rm -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine
