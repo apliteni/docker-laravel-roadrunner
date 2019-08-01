@@ -82,10 +82,7 @@ analyse app:
     GIT_STRATEGY: none
   script:
     - cd /app
-    - env
-    - cp -R /builds/tarampampam/laravel-in-docker-with-rr/vendor/* vendor/
-    - ls -alt vendor
-    - cat composer.json
+    - cp -R ${CI_PROJECT_DIR}/vendor/* vendor/
     - composer analyse
 
 app unit testing: &test-with-services
@@ -127,7 +124,7 @@ app unit testing: &test-with-services
     # - docker pull $APP_IMAGE:$CI_COMMIT_REF_SLUG
     # - mkdir ./logs
   script:
-    - echo $DB_DATABASE && echo $DB_USERNAME
+    - cp -R ${CI_PROJECT_DIR}/vendor/* vendor/
     - composer phpunit
   artifacts:
     when: on_failure
