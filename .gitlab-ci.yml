@@ -90,9 +90,9 @@ app unit testing: &test-with-services
     DB_HOST: postgres
     GIT_STRATEGY: none
     APP_CONTAINER_NAME: app
-    APP_DEBUG: true
+    APP_DEBUG: 'true'
     DB_PORT: 5432
-    STARTUP_WAIT_FOR_SERVICES: true
+    STARTUP_WAIT_FOR_SERVICES: 'true'
     REDIS_HOST: redis
     REDIS_PORT: 6379
     APP_RUN_ARGS: "--link=redis:redis -e REDIS_HOST=redis -e REDIS_PORT=6379
