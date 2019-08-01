@@ -81,7 +81,7 @@ analyse app:
   variables:
     GIT_STRATEGY: none
   script:
-    - pwd && ls -alt
+    - cd /app
     - ls -alt vendor
     - cat composer.json
     - composer analyse
