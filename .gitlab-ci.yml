@@ -124,6 +124,7 @@ app unit testing: &test-with-services
     # - docker pull $APP_IMAGE:$CI_COMMIT_REF_SLUG
     # - mkdir ./logs
   script:
+    - cd /app
     - cp -R ${CI_PROJECT_DIR}/vendor/* vendor/
     - composer phpunit
   artifacts:
