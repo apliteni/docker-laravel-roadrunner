@@ -82,6 +82,8 @@ analyse app:
     GIT_STRATEGY: none
   script:
     - cd /app
+    - env
+    - cp -R /builds/tarampampam/laravel-in-docker-with-rr/vendor/* vendor/
     - ls -alt vendor
     - cat composer.json
     - composer analyse
