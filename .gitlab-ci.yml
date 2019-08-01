@@ -26,7 +26,7 @@ stages:
   - test
   - deploy
 
-registry login: &registry_login
+.registry-login: &registry_login
   before_script:
     - &script-docker-login docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY > /dev/null
 
