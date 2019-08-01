@@ -35,7 +35,7 @@ registry login: &registry_login
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - vendor/
-.
+
 build app image:
   stage: build
   only:
