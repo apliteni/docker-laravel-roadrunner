@@ -9,8 +9,8 @@
 # 3. You should protect `master` branch - push for "Maintainers" only
 image: docker:stable
 
-services:
-  - docker:dind
+# services:
+#   - docker:dind
 
 variables:
   APP_IMAGE: $CI_REGISTRY_IMAGE/app
@@ -22,6 +22,7 @@ variables:
 
 stages:
   - build
+  - install
   - test
   - deploy
 
@@ -59,6 +60,14 @@ build latest app image:
     - docker push "$APP_IMAGE:$CI_COMMIT_REF_SLUG"
     - docker push "$APP_IMAGE:latest"
 
+
+install_dependencies:
+  stage: install
+  image: $APP_IMAGE:$CI_COMMIT_REF_SLUG
+  extends: .cache-common
+  script:
+    - composer install --prefer-dist --ansi
+
 analyse app:
   stage: test
   image: $APP_IMAGE:$CI_COMMIT_REF_SLUG
@@ -69,7 +78,7 @@ analyse app:
   variables:
     GIT_STRATEGY: none
   script:
-    - composer install --prefer-dist --ansi && composer analyse
+    - composer analyse
 
 app unit testing: &test-with-services
   stage: test
