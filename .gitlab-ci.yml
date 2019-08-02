@@ -160,8 +160,8 @@ test app running:
     - docker:dind
   script: # Container host name @see <https://stackoverflow.com/a/48288560/2252921>
     - docker network create $DOCKER_NETWORK_NAME
-    - docker run --rm -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine
-    - docker run --rm -d --name postgres --network ${DOCKER_NETWORK_NAME}
+    - docker run -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine
+    - docker run -d --name postgres --network ${DOCKER_NETWORK_NAME}
       -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_USER=${POSTGRES_USER}
       -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       postgres:${POSTGRES_VERSION}-alpine
