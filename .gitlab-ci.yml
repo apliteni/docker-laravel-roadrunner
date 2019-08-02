@@ -169,6 +169,7 @@ test app running:
       -v "$(pwd)/logs:/app/storage/logs:rw"
       -p 8080:80 -p 8081:443
       $APP_IMAGE:$CI_COMMIT_REF_SLUG
+    - docker ps -all
     - apk add --no-cache curl && sleep 15
     - curl -sS --fail "http://docker:8080/status"
     - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
