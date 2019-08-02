@@ -150,6 +150,7 @@ test app running:
   services:
     - postgres:$POSTGRES_VERSION
     - redis:$REDIS_VERSION
+    - docker:dind
   script: # Container host name @see <https://stackoverflow.com/a/48288560/2252921>
     # - docker run -d --name ${APP_CONTAINER_NAME} ${APP_RUN_ARGS} --network ${DOCKER_NETWORK_NAME}
     #   -v "$(pwd)/logs:/app/storage/logs:rw"
