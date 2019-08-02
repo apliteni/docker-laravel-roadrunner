@@ -146,10 +146,11 @@ test app running:
     # - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
     - echo "Functional tests"
     - cat /etc/hosts
-    - echo "host ${DB_HOST}, db ${DB_NAME}, username ${DB_USERNAME}, password ${DB_PASSWORD}"
+    - echo "host ${DB_HOST}, db ${DB_DATABASE}, username ${DB_USERNAME}, password ${DB_PASSWORD}"
+    - php artisan serve
     # - rr serve -c /app/.rr.yml
-    # - apk add --no-cache curl && sleep 15
-    # - curl -sS --fail "http://localhost:8080/status"
+    - apk add --no-cache curl && sleep 15
+    - curl -sS --fail "http://localhost:8080/status"
   after_script:
     - docker logs ${APP_CONTAINER_NAME} || true
 
