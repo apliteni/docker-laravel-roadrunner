@@ -147,17 +147,26 @@ test app running:
     STARTUP_WAIT_FOR_SERVICES: 'true'
     REDIS_HOST: redis
     REDIS_PORT: 6379
+    APP_RUN_ARGS: "-e REDIS_HOST=redis
+        -e REDIS_PORT=6379
+        -e DB_HOST=postgres
+        -e DB_PORT=5432
+        -e DB_DATABASE=forge
+        -e DB_USERNAME=forge
+        -e DB_PASSWORD=forge
+        -e APP_DEBUG=true
+        -e STARTUP_WAIT_FOR_SERVICES=true"
   services:
-    - postgres:$POSTGRES_VERSION
-    - redis:$REDIS_VERSION
     - docker:dind
   script: # Container host name @see <https://stackoverflow.com/a/48288560/2252921>
-    # - docker run -d --name ${APP_CONTAINER_NAME} ${APP_RUN_ARGS} --network ${DOCKER_NETWORK_NAME}
-    #   -v "$(pwd)/logs:/app/storage/logs:rw"
-    #   -p 8080:80 -p 8081:443
-    #   $APP_IMAGE:$CI_COMMIT_REF_SLUG
-    - echo "Functional tests"
+    - docker network create $DOCKER_NETWORK_NAME
+    - docker run --rm -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine
+    - docker run --rm -d --name postgres --network ${DOCKER_NETWORK_NAME}
+      -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_USER=${POSTGRES_USER}
+      -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      postgres:${POSTGRES_VERSION}-alpine
     - docker run -d --name ${APP_CONTAINER_NAME}
+      -v "$(pwd)/logs:/app/storage/logs:rw"
       -p 8080:80 -p 8081:443
       $APP_IMAGE:$CI_COMMIT_REF_SLUG
     - apk add --no-cache curl && sleep 15
@@ -165,6 +174,7 @@ test app running:
     - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
   after_script:
     - docker logs ${APP_CONTAINER_NAME} || true
+    - docker ps -all
 
 deploy to somewhere:
   stage: deploy
