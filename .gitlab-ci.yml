@@ -143,6 +143,7 @@ test app running:
     # - apk add --no-cache curl && sleep 15
     # - curl -sS --fail "http://docker:8080/status"
     # - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
+    - cat /etc/hosts
     - echo "Functional tests"
   after_script:
     - docker logs ${APP_CONTAINER_NAME} || true
