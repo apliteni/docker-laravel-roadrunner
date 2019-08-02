@@ -149,6 +149,7 @@ test app running:
     - cp -R ${CI_PROJECT_DIR}/vendor/* vendor/
     - echo "host ${DB_HOST}, db ${DB_DATABASE}, username ${DB_USERNAME}, password ${DB_PASSWORD}"
     - php artisan serve &
+    - ps ax
     # - rr serve -c /app/.rr.yml
     - apk add --no-cache curl && sleep 15
     - curl -sS --fail "http://localhost:8080/status"
