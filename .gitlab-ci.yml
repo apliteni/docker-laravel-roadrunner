@@ -97,7 +97,7 @@ app unit testing: &test-with-services
   services:
     - postgres:$POSTGRES_VERSION
     - redis:$REDIS_VERSION
-  variables: &common-variables
+  variables:
     DB_DATABASE: $POSTGRES_DB
     DB_USERNAME: $POSTGRES_USER
     DB_PASSWORD: $POSTGRES_PASSWORD
@@ -135,7 +135,18 @@ app unit testing: &test-with-services
 
 test app running:
   image: docker:stable
-  <<: *common-variables
+  variables:
+    DB_DATABASE: $POSTGRES_DB
+    DB_USERNAME: $POSTGRES_USER
+    DB_PASSWORD: $POSTGRES_PASSWORD
+    DB_HOST: postgres
+    GIT_STRATEGY: none
+    APP_CONTAINER_NAME: app
+    APP_DEBUG: 'true'
+    DB_PORT: 5432
+    STARTUP_WAIT_FOR_SERVICES: 'true'
+    REDIS_HOST: redis
+    REDIS_PORT: 6379
   services:
     - postgres:$POSTGRES_VERSION
     - redis:$REDIS_VERSION
