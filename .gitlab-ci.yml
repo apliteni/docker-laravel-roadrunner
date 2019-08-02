@@ -134,6 +134,7 @@ app unit testing: &test-with-services
       - logs/
 
 test app running:
+  image: docker:stable
   <<: *test-with-services
   script: # Container host name @see <https://stackoverflow.com/a/48288560/2252921>
     # - docker run -d --name ${APP_CONTAINER_NAME} ${APP_RUN_ARGS} --network ${DOCKER_NETWORK_NAME}
@@ -143,8 +144,13 @@ test app running:
     # - apk add --no-cache curl && sleep 15
     # - curl -sS --fail "http://docker:8080/status"
     # - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
-    - cat /etc/hosts
     - echo "Functional tests"
+    - docker run -d --name ${APP_CONTAINER_NAME}
+      -p 8080:80 -p 8081:443
+      $APP_IMAGE:$CI_COMMIT_REF_SLUG
+    - apk add --no-cache curl && sleep 15
+    - curl -sS --fail "http://docker:8080/status"
+    - cat /etc/hosts
   after_script:
     - docker logs ${APP_CONTAINER_NAME} || true
 

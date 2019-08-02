@@ -6,6 +6,8 @@ STARTUP_DELAY="${STARTUP_DELAY:-0}";
 STARTUP_WAIT_FOR_SERVICES="${STARTUP_WAIT_FOR_SERVICES:-false}";
 STARTUP_SETUP_RABBIT="${STARTUP_SETUP_RABBIT:-false}";
 
+cat /etc/hosts
+
 if [ "$STARTUP_DELAY" -gt 0 ]; then
   echo "[INFO] Wait $STARTUP_DELAY seconds before start ..";
   sleep "$STARTUP_DELAY";
