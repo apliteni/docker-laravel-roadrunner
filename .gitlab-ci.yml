@@ -145,7 +145,8 @@ test app running:
     # - curl -sS --fail "http://docker:8080/status"
     # - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
     - echo "Functional tests"
-    - cat /etc/hosts
+    - cd /app
+    - cp -R ${CI_PROJECT_DIR}/vendor/* vendor/
     - echo "host ${DB_HOST}, db ${DB_DATABASE}, username ${DB_USERNAME}, password ${DB_PASSWORD}"
     - php artisan serve
     # - rr serve -c /app/.rr.yml
