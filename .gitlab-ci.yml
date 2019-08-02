@@ -106,7 +106,6 @@ app unit testing: &test-with-services
     APP_CONTAINER_NAME: app
     APP_DEBUG: 'true'
     DB_PORT: 5432
-    STARTUP_WAIT_FOR_SERVICES: 'true'
     REDIS_HOST: redis
     REDIS_PORT: 6379
     # APP_RUN_ARGS: "--link=redis:redis -e REDIS_HOST=redis -e REDIS_PORT=6379
@@ -147,6 +146,7 @@ test app running:
     STARTUP_WAIT_FOR_SERVICES: 'true'
     REDIS_HOST: redis
     REDIS_PORT: 6379
+    DOCKER_NETWORK_NAME: app-network
     APP_RUN_ARGS: "-e REDIS_HOST=redis
         -e REDIS_PORT=6379
         -e DB_HOST=postgres
