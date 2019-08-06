@@ -133,7 +133,10 @@ app unit testing: &test-with-services
   #     - logs/
 
 test app running:
-  image: docker:stable
+  image: $APP_IMAGE:$CI_COMMIT_REF_SLUG
+  services:
+    - postgres:$POSTGRES_VERSION
+    - redis:$REDIS_VERSION
   variables:
     DB_DATABASE: $POSTGRES_DB
     DB_USERNAME: $POSTGRES_USER
@@ -156,26 +159,25 @@ test app running:
         -e DB_PASSWORD=forge
         -e APP_DEBUG=true
         -e STARTUP_WAIT_FOR_SERVICES=true"
-  services:
-    - docker:dind
   script: # Container host name @see <https://stackoverflow.com/a/48288560/2252921>
-    - docker network create $DOCKER_NETWORK_NAME
-    - docker run -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine
-    - docker run -d --name postgres --network ${DOCKER_NETWORK_NAME}
-      -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_USER=${POSTGRES_USER}
-      -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-      postgres:${POSTGRES_VERSION}-alpine
-    - docker run -d --name ${APP_CONTAINER_NAME}
-      -v "$(pwd)/logs:/app/storage/logs:rw"
-      -p 8080:80 -p 8081:443
-      $APP_IMAGE:$CI_COMMIT_REF_SLUG
-    - docker ps -all
+    # - docker network create $DOCKER_NETWORK_NAME
+    # - docker run -d --name redis --network ${DOCKER_NETWORK_NAME} redis:${REDIS_VERSION}-alpine
+    # - docker run -d --name postgres --network ${DOCKER_NETWORK_NAME}
+    #   -e POSTGRES_DB=${POSTGRES_DB} -e POSTGRES_USER=${POSTGRES_USER}
+    #   -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    #   postgres:${POSTGRES_VERSION}-alpine
+    # - docker run -d --name ${APP_CONTAINER_NAME}
+    #   -v "$(pwd)/logs:/app/storage/logs:rw"
+    #   -p 8080:80 -p 8081:443
+    #   $APP_IMAGE:$CI_COMMIT_REF_SLUG
+    # - docker ps -all
+    - rr serve -c /app/.rr.yml
     - apk add --no-cache curl && sleep 15
-    - curl -sS --fail "http://docker:8080/status"
+    - curl -sS --fail "http://localhost:8080/status"
     - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
-  after_script:
-    - docker logs ${APP_CONTAINER_NAME} || true
-    - docker ps -all
+  # after_script:
+  #   - docker logs ${APP_CONTAINER_NAME} || true
+  #   - docker ps -all
 
 deploy to somewhere:
   stage: deploy
