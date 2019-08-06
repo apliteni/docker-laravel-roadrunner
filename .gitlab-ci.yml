@@ -108,7 +108,6 @@ app unit testing: &test-with-services
     DB_PASSWORD: $POSTGRES_PASSWORD
     DB_HOST: postgres
     GIT_STRATEGY: none
-    APP_CONTAINER_NAME: app
     APP_DEBUG: 'true'
     DB_PORT: 5432
     REDIS_HOST: redis
@@ -134,7 +133,6 @@ test app running:
     DB_PASSWORD: $POSTGRES_PASSWORD
     DB_HOST: postgres
     GIT_STRATEGY: none
-    APP_CONTAINER_NAME: app
     APP_DEBUG: 'true'
     STARTUP_DELAY: 10
     DB_PORT: 5432
@@ -143,7 +141,7 @@ test app running:
     REDIS_PORT: 6379
   script:
     - rr serve -c /app/.rr.yml &
-    - apk add --no-cache curl && sleep 10
+    - apk add --no-cache curl
     - curl -sS --fail "http://localhost/status"
     - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://localhost/status"
 
