@@ -134,9 +134,7 @@ test app running:
     DB_HOST: postgres
     GIT_STRATEGY: none
     APP_DEBUG: 'true'
-    STARTUP_DELAY: 10
     DB_PORT: 5432
-    STARTUP_WAIT_FOR_SERVICES: 'true'
     REDIS_HOST: redis
     REDIS_PORT: 6379
   script:
