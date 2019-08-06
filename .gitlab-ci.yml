@@ -9,9 +9,6 @@
 # 3. You should protect `master` branch - push for "Maintainers" only
 image: docker:stable
 
-services:
-  - docker:dind
-
 variables:
   APP_IMAGE: $CI_REGISTRY_IMAGE/app
   REDIS_VERSION: '5.0.5'
@@ -38,6 +35,8 @@ stages:
 
 build app image:
   stage: build
+  services:
+    - docker:dind
   only:
     - branches
   <<: *registry_login
@@ -50,6 +49,8 @@ build app image:
 
 build latest app image:
   stage: build
+  services:
+    - docker:dind
   only:
     - /^v\d+\.\d+\.\d+$/
   except:
@@ -145,6 +146,7 @@ test app running:
     GIT_STRATEGY: none
     APP_CONTAINER_NAME: app
     APP_DEBUG: 'true'
+    STARTUP_DELAY: 10
     DB_PORT: 5432
     STARTUP_WAIT_FOR_SERVICES: 'true'
     REDIS_HOST: redis
@@ -172,9 +174,9 @@ test app running:
     #   $APP_IMAGE:$CI_COMMIT_REF_SLUG
     # - docker ps -all
     - rr serve -c /app/.rr.yml &
-    - apk add --no-cache curl && sleep 15
-    - curl -sS --fail "http://localhost:8080/status"
-    - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
+    - apk add --no-cache curl && sleep 10
+    - curl -sS --fail "http://localhost/status"
+    - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker/status"
   # after_script:
   #   - docker logs ${APP_CONTAINER_NAME} || true
   #   - docker ps -all
