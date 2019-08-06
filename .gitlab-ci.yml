@@ -171,7 +171,7 @@ test app running:
     #   -p 8080:80 -p 8081:443
     #   $APP_IMAGE:$CI_COMMIT_REF_SLUG
     # - docker ps -all
-    - rr serve -c /app/.rr.yml
+    - rr serve -c /app/.rr.yml &
     - apk add --no-cache curl && sleep 15
     - curl -sS --fail "http://localhost:8080/status"
     - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://docker:8081/status"
