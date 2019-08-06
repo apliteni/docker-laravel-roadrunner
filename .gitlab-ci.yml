@@ -36,7 +36,7 @@ stages:
 build app image:
   stage: build
   services:
-    - docker:dind
+    - docker:stable-dind
   only:
     - branches
   <<: *registry_login
@@ -52,7 +52,7 @@ build app image:
 build latest app image:
   stage: build
   services:
-    - docker:dind
+    - docker:stable-dind
   only:
     - /^v\d+\.\d+\.\d+$/
   except:
@@ -135,11 +135,12 @@ test app running:
     GIT_STRATEGY: none
     APP_DEBUG: 'true'
     DB_PORT: 5432
+    STARTUP_DELAY: 5
     REDIS_HOST: redis
     REDIS_PORT: 6379
   script:
     - rr serve -c /app/.rr.yml &
-    - apk add --no-cache curl
+    - apk add --no-cache curl && sleep $STARTUP_DELAY
     - curl -sS --fail "http://localhost/status"
     - curl -sS --fail --insecure -H 'FORCE-HTTPS:true' "https://localhost/status"
 
